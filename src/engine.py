@@ -93,7 +93,7 @@ def calculate_probabilty(num_of_sims, multicore = True):
         total_wins = worker_task(num_of_sims)
     equity = total_wins / num_of_sims
     print(f"Total Equity: {equity*100}%")
-    return equity
+    return equity, total_wins
 
 
 def expected_value(win_prob, pot, price_to_call):
@@ -111,9 +111,26 @@ def expected_value(win_prob, pot, price_to_call):
         
     return decision
 
+import time
+
+def run_benchmark(n_sims, use_multiprocessing=True):
+    start_time = time.perf_counter()
+    
+    _, h = calculate_probabilty(n_sims,use_multiprocessing)
+        
+    end_time = time.perf_counter()
+    return end_time - start_time
 
 if __name__ == "__main__":
-    num_of_sims = 100000
-    win_prob = calculate_probabilty(num_of_sims)
-    print(expected_value(win_prob, 1000, 250))
-    
+#     num_of_sims = 100000
+#     win_prob, wins = calculate_probabilty(num_of_sims)
+#     print(expected_value(win_prob, 1000, 250))
+    for total in [10000, 100000, 1000000]:
+        # Single Core
+        t_single = run_benchmark(total, use_multiprocessing=False)
+        # Multi Core
+        t_multi = run_benchmark(total, use_multiprocessing=True)
+        
+        print(f"Sims: {total} | Single: {t_single:.4f}s | Multi: {t_multi:.4f}s")
+
+        
